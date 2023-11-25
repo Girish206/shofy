@@ -1,0 +1,67 @@
+{% load static %}
+<div class="cartmini__area tp-all-font-roboto">
+    <div class="cartmini__wrapper d-flex justify-content-between flex-column">
+        <div class="cartmini__top-wrapper">
+            <div class="cartmini__top p-relative">
+                <div class="cartmini__top-title">
+                    <h4>Shopping cart</h4>
+                </div>
+                <div class="cartmini__close">
+                    <button type="button" class="cartmini__close-btn cartmini-close-btn"><i
+                            class="fal fa-times"></i></button>
+                </div>
+            </div>
+            <!-- <div class="cartmini__shipping">
+                <p> Free Shipping for all orders over <span>$50</span></p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                        data-width="70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div> -->
+            <div class="cartmini__widget">
+                {% for item in request.session.cart_products %}
+                <div class="cartmini__widget-item">
+                    <div class="cartmini__thumb">
+                        <a href="/shop/product_details/{{item.id}}/">
+                            <img src="{{ item.image_url }}" alt="">
+                        </a>
+                    </div>
+                    <div class="cartmini__content">
+                        <h5 class="cartmini__title">
+                            <a href="/shop/product_details/{{item.id}}/">{{ item.product_name }}</a>
+                        </h5>
+                        <div class="cartmini__price-wrapper">
+                            <span class="cartmini__price">₹{{ item.discounted_price }}</span>
+                            <span class="cartmini__quantity">x{{ item.quantity }}</span>
+                        </div>
+                    </div>
+                    <a href="/shop/cart/remove/{{item.product_id}}/" class="cartmini__del">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="text-center" style="margin-top: 40px;">
+                    <img src="{% static 'assets/img/product/cartmini/empty-cart.png' %}" style="max-width: 150px;"
+                        alt="">
+                    <p>Your Cart is empty</p>
+                    <a href="/shop/view/" class="tp-btn">Go to Store</a>
+                </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+        {% if request.session.cart_products|length > 0 %}
+        <div class="cartmini__checkout">
+            <div class="cartmini__checkout-title mb-30">
+                <h4>Subtotal:</h4>
+                <span>₹ {{ request.session.cart_total_price }}</span>
+            </div>
+            <div class="cartmini__checkout-btn">
+                <a href="/shop/cart/" class="tp-btn mb-10 w-100"> view cart</a>
+                <a href="/shop/checkout/" class="tp-btn tp-btn-border w-100"> checkout</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

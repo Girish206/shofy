@@ -1,0 +1,567 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<script>
+    $(document).ready(function () {
+        $('#search_grid_view_block').hide('fast');
+        $('#search_main_title').hide('fast');
+        $('#search_text').keyup(function () {
+            let sea_text = $('#search_text').val();
+            if (sea_text == '') {
+                $('#grid_view_block').show('fast');
+                $('#search_grid_view_block').hide('fast');
+                $('#search_main_title').hide('fast');
+                $('#main_title').show('fast');
+                $('#pagination_div').show('fast');
+            } else {
+                $.ajax({
+                    url: '/shop/search/' + sea_text,
+                    method: 'get',
+                    success: function (data) {
+                        var email_id = '{{request.session.email_id}}';
+                        var cart_ids = '{{request.session.cart_ids}}';
+                        var wish_ids = '{{request.session.wish_ids}}';
+                        console.log(wish_ids);
+                        var products = JSON.parse(data);
+                        console.log(products[0])
+                        var html_data = '';
+                        if (products.length > 0) {
+                            for (i = 0; i < products.length; i++) {
+                                let discount_price = parseFloat(products[i].fields.price) - ((parseFloat(products[i].fields.discount) * parseFloat(products[i].fields.price)) / 100);
+                                html_data += `<div class="col-xl-3 col-lg-3 col-sm-6">
+                                    <div class="tp-product-item transition-3 mb-25">
+                                        <div class="tp-product-thumb p-relative fix m-img">
+                                            <a href="/shop/product_details/${products[i].pk}/">
+                                                <img src="/media/${products[i].fields.image}" style="padding:10px;height: 180px;width:auto;"
+                                                    alt="product-electronic">
+                                            </a>
+                                            ${parseFloat(products[i].fields.discount) !== 0 ?
+                                        `<div class="tp-product-badge">
+                                                <span class="product-offer">-${Math.round(parseFloat(products[i].fields.discount))}%
+                                                </span> </div>` : ''}
+
+                                            <div class="tp-product-action">
+                                                <div class="tp-product-action-item d-flex flex-column">
+
+                                                    <button type="button"
+                                                        class="tp-product-action-btn tp-product-quick-view-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#producQuickViewModal${products[i].pk}">
+                                                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                                                        <span class="tp-product-tooltip">Quick
+                                                            View</span>
+                                                    </button>`;
+                                if (email_id != '') {
+                                    if (cart_ids.includes(products[i].pk)) {
+                                        html_data += `<a href="/shop/cart/remove/${products[i].pk}/"
+                                                        class="tp-product-action-btn tp-product-add-cart-btn">
+                                                        <i class="fa-solid fa-square-minus"></i> <span
+                                                            class="tp-product-tooltip">Remove
+                                                            From Cart</span>
+                                                    </a>`;
+                                    } else {
+                                        html_data += `<a href="/shop/cart/add/${products[i].pk}/"
+                                                        class="tp-product-action-btn tp-product-add-cart-btn">
+                                                        <i class="fa-solid fa-basket-shopping"></i>
+                                                        <span class="tp-product-tooltip">Add
+                                                            to Cart</span>
+                                                    </a>`;
+                                    }
+                                    if (wish_ids.includes(products[i].pk)) {
+                                        html_data += `<a href="/shop/wishlist/remove/${products[i].pk}/"
+                                                        class="tp-product-action-btn tp-product-add-to-wishlist-btn">
+                                                        <i class="fa-solid fa-heart-circle-minus"></i>
+                                                        <span class="tp-product-tooltip">Remove
+                                                            From Wishlist</span>
+                                                    </a>`;
+                                    } else {
+                                        html_data += `<a href="/shop/wishlist/add/${products[i].pk}/"
+                                                        class="tp-product-action-btn tp-product-add-to-wishlist-btn">
+                                                        <i class="fa-solid fa-heart"></i> <span
+                                                            class="tp-product-tooltip">Add
+                                                            To Wishlist</span>
+                                                    </a>`;
+                                    }
+                                }
+                                html_data += `</div >
+                                            </div >
+                                        </div >
+                                    <div class="tp-product-content">
+                                        <div class="tp-product-category">
+                                            <a href="#">${products[i].fields.product_brand}</a>
+                                        </div>
+                                        <h3 class="tp-product-title">
+                                            <a href="/shop/product_details/${products[i].pk}/">${products[i].fields.product_name}</a>
+                                        </h3>
+                                        <div class="tp-product-price-wrapper">
+                                            <span
+                                                class="tp-product-price new-price">&#8377;${discount_price}</span>
+                                            {% if prod.discount > 0 %}
+                                            <span class="tp-product-price old-price">₹${products[i].fields.price}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    </div >
+                                </div >
+                                    <div class="modal fade tp-product-modal" id="producQuickViewModal${products[i].pk}"
+                                        tabindex="-1" aria-labelledby="producQuickViewModal${products[i].pk}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="tp-product-modal-content d-lg-flex align-items-start">
+                                                    <button type="button" class="tp-product-modal-close-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#producQuickViewModal${products[i].pk}"><i
+                                                            class="fal fa-times"></i></button>
+                                                    <div class="tp-product-details-thumb-wrapper tp-tab d-sm-flex m-img">
+                                                        <div class="tab-content m-img" id="productDetailsNavContent">
+                                                            <div class="tab-pane fade show active" id="nav-1"
+                                                                role="tabpanel" aria-labelledby="nav-1-tab" tabindex="0">
+                                                                <div class="tp-product-details-nav-main-thumb">
+                                                                    <img src="{{prod.image.url}}" alt=""
+                                                                        style="max-width: 450px;max-height: auto;">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tp-product-details-wrapper">
+                                                        <div class="tp-product-details-category">
+                                                            <span>${products[i].fields.product_brand}</span>
+                                                        </div>
+                                                        <h3 class="tp-product-details-title">${products[i].fields.product_name}</h3>
+
+                                                        <div
+                                                            class="tp-product-details-inventory d-flex align-items-center mb-10">
+                                                            <div class="tp-product-details-stock mb-10">
+                                                                <span>${products[i].fields.status}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tp-product-details-price-wrapper mb-20">
+                                                            <span
+                                                                class="tp-product-price-2 new-price">&#8377;${discount_price}</span>
+                                                            {% if prod.discount > 0 %}
+                                                            <span
+                                                                class="tp-product-price-2 old-price">₹${products[i].fields.price}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <details style="margin-bottom: 30px;">
+                                                            <summary>Description</summary>
+                                                            <p>${products[i].fields.description}</p>
+                                                        </details>`;
+
+
+                                if (email_id != '') {
+
+                                    html_data += `<div class="tp-product-details-action-wrapper">`;
+                                    if (cart_ids.includes(products[i].pk)) {
+                                        html_data += `<div
+                                                                class="tp-product-details-action-item-wrapper d-sm-flex align-items-center">
+                                                                <div class="tp-product-details-add-to-cart mb-15 w-100">
+                                                                    <a href="/shop/cart/remove/${products[i].pk}/"
+                                                                        class="tp-product-details-add-to-cart-btn w-100">Remove
+                                                                        From Cart</a>
+                                                                </div>
+                                                            </div>`;
+                                    } else {
+                                        html_data += `<div
+                                                                class="tp-product-details-action-item-wrapper d-sm-flex align-items-center">
+                                                                <div class="tp-product-details-add-to-cart mb-15 w-100">
+                                                                    <a href="/shop/cart/add/${products[i].pk}/"
+                                                                        class="tp-product-details-add-to-cart-btn w-100">Add
+                                                                        To Cart</a>
+                                                                </div>
+                                                            </div>`;
+                                    }
+
+
+                                    html_data += `</div >
+                                        <div class="tp-product-details-action-sm">`;
+                                    if (wish_ids.includes(products[i].pk)) {
+                                        html_data += `<a href="/shop/wishlist/remove/${products[i].pk}/"
+                                                class="tp-product-details-action-sm-btn">
+                                                <i class="fa-solid fa-heart-circle-minus"></i> Remove From
+                                                Wishlist
+                                            </a>`;
+                                    } else {
+                                        html_data += `<a href="/shop/wishlist/add/${products[i].pk}/"
+                                        class="tp-product-details-action-sm-btn">
+                                        <i class="fa-solid fa-heart"></i>
+                                        Add To Wishlist
+                                    </a>`;
+                                    }
+                                    html_data += `</div >`;
+                                }
+                                html_data += `</div >
+                                                </div >
+                                            </div >
+                                        </div >
+                                    </div > `;
+                            }
+
+                        } else {
+                            html_data += `
+                            <div class="text-center" style="margin-top: 40px;">
+                                    <img src="{% static 'assets/img/product/cartmini/empty-cart.png' %}"
+                                        style="max-width: 150px;" alt="">
+                                    <p>No Products</p>
+                                    <!-- <a href="/shop/view/" class="tp-btn">Go to Store</a> -->
+                                </div>`;
+                        }
+                        $('#pagination_div').hide('fast');
+                        $('#search_grid_view_block').empty();
+                        $('#search_grid_view_block').append(html_data);
+                        $('#grid_view_block').hide('fast');
+                        $('#search_grid_view_block').show('fast');
+                        $('#main_title').hide('fast');
+                        $('#search_main_title').html('Showing ' + products.length + ' Products');
+
+                        $('#search_main_title').show('fast');
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+
+<main>
+    <!-- shop area start -->
+    <section class="tp-shop-area pb-120 pt-80">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-3 col-lg-4">
+                    <div class="tp-shop-sidebar mr-10">
+                        <!-- filter -->
+                        <!-- <div class="tp-shop-widget mb-35">
+                            <h3 class="tp-shop-widget-title no-border">Price Filter</h3>
+
+                            <div class="tp-shop-widget-content">
+                                <div class="tp-shop-widget-filter">
+                                    <div id="slider-range" class="mb-10"></div>
+                                    <div
+                                        class="tp-shop-widget-filter-info d-flex align-items-center justify-content-between">
+                                        <span class="input-range">
+                                            <input type="text" id="amount" readonly>
+                                        </span>
+                                        <button class="tp-shop-widget-filter-btn" type="button">Filter</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- status -->
+                        <!-- <div class="tp-shop-widget mb-50">
+                            <h3 class="tp-shop-widget-title">Product Status</h3>
+
+                            <div class="tp-shop-widget-content">
+                                <div class="tp-shop-widget-checkbox">
+                                    <ul class="filter-items filter-checkbox">
+                                        <li class="filter-item checkbox">
+                                            <input id="on_sale" type="checkbox">
+                                            <label for="on_sale">On sale</label>
+                                        </li>
+                                        <li class="filter-item checkbox">
+                                            <input id="in_stock" type="checkbox">
+                                            <label for="in_stock">In Stock</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- categories -->
+                        <div class="tp-shop-widget mb-50">
+                            <h3 class="tp-shop-widget-title">Categories</h3>
+
+                            <div class="tp-shop-widget-content">
+                                <div class="tp-shop-widget-categories">
+                                    <ul>
+                                        {% for pro_cat in product_categories %}
+                                        <li><a href="/shop/view/{{ pro_cat.product_type }}/">{{ pro_cat.product_type }}
+                                                <span>{{ pro_cat.product_count }}</span></a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-9 col-lg-8">
+                    <div class="tp-shop-main-wrapper">
+
+                        <div class="tp-shop-top mb-45">
+                            <div class="row">
+                                <div class="col-xl-6">
+                                    <div class="tp-shop-top-left d-flex align-items-center ">
+
+                                        <div class="tp-shop-top-result" id="main_title">
+                                            <p>{{type}}-{{category}} : Showing {{products|length}} Products</p>
+                                        </div>
+                                        <div class="tp-shop-top-result" id="search_main_title">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="tp-shop-top-right d-sm-flex align-items-center justify-content-xl-end">
+                                        <div class="tp-shop-top-select">
+                                            <input type="text" name="search_text" id="search_text"
+                                                placeholder="Search for Products...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tp-shop-items-wrapper tp-shop-item-primary">
+                            <div class="row infinite-container" id="grid_view_block">
+                                {% for prod in products %}
+                                <div class="col-xl-3 col-lg-3 col-sm-6">
+                                    <div class="tp-product-item transition-3 mb-25">
+                                        <div class="tp-product-thumb p-relative fix m-img">
+                                            <a href="/shop/product_details/{{prod.id}}/">
+                                                <img src="{{ prod.image.url }}"
+                                                    style="height: 180px;width: auto;padding: 10px;"
+                                                    alt="product-electronic">
+                                            </a>
+                                            <!-- product badge -->
+                                            {% if prod.discount > 0 %}
+                                            <div class="tp-product-badge">
+                                                <span class="product-offer">-{{ prod.discount }}%</span>
+                                            </div>
+                                            {% endif %}
+
+                                            <!-- product action -->
+
+                                            <div class="tp-product-action">
+                                                <div class="tp-product-action-item d-flex flex-column">
+                                                    <button type="button"
+                                                        class="tp-product-action-btn tp-product-quick-view-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#producQuickViewModal{{prod.id}}">
+                                                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                                                        <span class="tp-product-tooltip">Quick
+                                                            View</span>
+                                                    </button>
+                                                    {% if 'email_id' in request.session %}
+                                                    {% if prod.id in request.session.cart_ids %}
+                                                    <a href="/shop/cart/remove/{{prod.id}}/"
+                                                        class="tp-product-action-btn tp-product-add-cart-btn">
+                                                        <i class="fa-solid fa-square-minus"></i> <span
+                                                            class="tp-product-tooltip">Remove
+                                                            From Cart</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="/shop/cart/add/{{prod.id}}/"
+                                                        class="tp-product-action-btn tp-product-add-cart-btn">
+                                                        <i class="fa-solid fa-basket-shopping"></i>
+                                                        <span class="tp-product-tooltip">Add
+                                                            to Cart</span>
+                                                    </a>
+                                                    {% endif %}
+                                                    {% if prod.id in request.session.wish_ids %}
+                                                    <a href="/shop/wishlist/remove/{{prod.id}}/"
+                                                        class="tp-product-action-btn tp-product-add-to-wishlist-btn">
+                                                        <i class="fa-solid fa-heart-circle-minus"></i>
+                                                        <span class="tp-product-tooltip">Remove
+                                                            From Wishlist</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="/shop/wishlist/add/{{prod.id}}/"
+                                                        class="tp-product-action-btn tp-product-add-to-wishlist-btn">
+                                                        <i class="fa-solid fa-heart"></i> <span
+                                                            class="tp-product-tooltip">Add
+                                                            To Wishlist</span>
+                                                    </a>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- product content -->
+                                        <div class="tp-product-content">
+                                            <div class="tp-product-category">
+                                                <a href="#">{{ prod.product_brand }}</a>
+                                            </div>
+                                            <h3 class="tp-product-title">
+                                                <a href="/shop/product_details/{{prod.id}}/">{{ prod.product_name }}</a>
+                                            </h3>
+                                            <!-- <div class="tp-product-rating d-flex align-items-center">
+                                                <div class="tp-product-rating-icon">
+                                                    <span><i class="fa-solid fa-star"></i></span>
+                                                    <span><i class="fa-solid fa-star"></i></span>
+                                                    <span><i class="fa-solid fa-star"></i></span>
+                                                    <span><i class="fa-solid fa-star"></i></span>
+                                                    <span><i class="fa-solid fa-star-half-stroke"></i></span>
+                                                </div>
+                                                <div class="tp-product-rating-text">
+                                                    <span>(5 Review)</span>
+                                                </div>
+                                            </div> -->
+                                            <div class="tp-product-price-wrapper">
+                                                <span
+                                                    class="tp-product-price new-price">&#8377;{{prod.discount_price}}</span>
+                                                {% if prod.discount > 0 %}
+                                                <span class="tp-product-price old-price">₹{{prod.price}}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade tp-product-modal" id="producQuickViewModal{{prod.id}}"
+                                    tabindex="-1" aria-labelledby="producQuickViewModal{{prod.id}}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="tp-product-modal-content d-lg-flex align-items-start">
+                                                <button type="button" class="tp-product-modal-close-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#producQuickViewModal{{prod.id}}"><i
+                                                        class="fal fa-times"></i></button>
+                                                <div class="tp-product-details-thumb-wrapper tp-tab d-sm-flex m-img">
+                                                    <div class="tab-content m-img" id="productDetailsNavContent">
+                                                        <div class="tab-pane fade show active" id="nav-1"
+                                                            role="tabpanel" aria-labelledby="nav-1-tab" tabindex="0">
+                                                            <div class="tp-product-details-nav-main-thumb">
+                                                                <img src="{{prod.image.url}}" alt=""
+                                                                    style="max-width: 450px;max-height: auto;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tp-product-details-wrapper">
+                                                    <div class="tp-product-details-category">
+                                                        <span>{{ prod.product_brand }}</span>
+                                                    </div>
+                                                    <h3 class="tp-product-details-title">{{ prod.product_name }}</h3>
+
+                                                    <!-- inventory details -->
+                                                    <div
+                                                        class="tp-product-details-inventory d-flex align-items-center mb-10">
+                                                        <div class="tp-product-details-stock mb-10">
+                                                            <span>{{ prod.status }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- price -->
+                                                    <div class="tp-product-details-price-wrapper mb-20">
+                                                        <span
+                                                            class="tp-product-price-2 new-price">&#8377;{{prod.discount_price}}</span>
+                                                        {% if prod.discount > 0 %}
+                                                        <span
+                                                            class="tp-product-price-2 old-price">₹{{prod.price}}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <details style="margin-bottom: 30px;">
+                                                        <summary>Description</summary>
+                                                        <p>{{ prod.description }}</p>
+                                                    </details>
+
+
+                                                    <!-- actions -->
+                                                    {% if 'email_id' in request.session %}
+                                                    <div class="tp-product-details-action-wrapper">
+                                                        {% if prod.id in request.session.cart_ids %}
+                                                        <div
+                                                            class="tp-product-details-action-item-wrapper d-sm-flex align-items-center">
+                                                            <div class="tp-product-details-add-to-cart mb-15 w-100">
+                                                                <a href="/shop/cart/remove/{{prod.id}}/"
+                                                                    class="tp-product-details-add-to-cart-btn w-100">Remove
+                                                                    From Cart</a>
+                                                            </div>
+                                                        </div>
+                                                        {% else %}
+                                                        <div
+                                                            class="tp-product-details-action-item-wrapper d-sm-flex align-items-center">
+                                                            <div class="tp-product-details-add-to-cart mb-15 w-100">
+                                                                <a href="/shop/cart/add/{{prod.id}}/"
+                                                                    class="tp-product-details-add-to-cart-btn w-100">Add
+                                                                    To Cart</a>
+                                                            </div>
+                                                        </div>
+                                                        {% endif %}
+
+
+                                                    </div>
+                                                    <div class="tp-product-details-action-sm">
+                                                        {% if prod.id in request.session.wish_ids %}
+                                                        <a href="/shop/wishlist/remove/{{prod.id}}/"
+                                                            class="tp-product-details-action-sm-btn">
+                                                            <i class="fa-solid fa-heart-circle-minus"></i> Remove From
+                                                            Wishlist
+                                                        </a>
+                                                        {% else %}
+                                                        <a href="/shop/wishlist/add/{{prod.id}}/"
+                                                            class="tp-product-details-action-sm-btn">
+                                                            <i class="fa-solid fa-heart"></i>
+                                                            Add To Wishlist
+                                                        </a>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="text-center" style="margin-top: 40px;">
+                                    <img src="{% static 'assets/img/product/cartmini/empty-cart.png' %}"
+                                        style="max-width: 150px;" alt="">
+                                    <p>No Products</p>
+                                    <!-- <a href="/shop/view/" class="tp-btn">Go to Store</a> -->
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="row infinite-container" id="search_grid_view_block"></div>
+                        </div>
+                        <div class="tp-shop-pagination mt-20 " id="pagination_div">
+                            <div class="tp-pagination text-md-end">
+                                <nav>
+                                    <ul>
+                                        {% if products.has_previous %}
+                                        <li>
+                                            <a href="?page={{ products.previous_page_number }}"
+                                                class="tp-pagination-prev prev page-numbers">
+                                                <svg width="15" height="13" viewBox="0 0 15 13" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M1.00017 6.77879L14 6.77879" stroke="currentColor"
+                                                        stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                    <path d="M6.24316 11.9999L0.999899 6.77922L6.24316 1.55762"
+                                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="#">{{ products.number }}/{{ products.paginator.num_pages }}</a>
+                                        </li>
+                                        {% if products.has_next %}
+                                        <li>
+                                            <a href="?page={{ products.next_page_number }}" class="next page-numbers">
+                                                <svg width="15" height="13" viewBox="0 0 15 13" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M13.9998 6.77883L1 6.77883" stroke="currentColor"
+                                                        stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                    <path d="M8.75684 1.55767L14.0001 6.7784L8.75684 12"
+                                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- shop area end -->
+</main>
+
+
+{% endblock %}

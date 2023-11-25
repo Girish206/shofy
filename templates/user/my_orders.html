@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+
+    <!-- profile area start -->
+    <section class="profile__area pt-120 pb-120">
+        <div class="container">
+            <div class="profile__inner p-relative">
+                <div class="row">
+                    {% include 'layouts/my_account_sidebar.html' %}
+                    <div class="col-xxl-8 col-lg-8">
+                        <div class="profile__tab-content">
+                            <h3 class="profile__address-title">My Orders</h3>
+                            {% if orders|length > 0 %}
+                            <div class="profile__ticket table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Order Id</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        {% for order_item in order.order_items.all %}
+                                        <tr>
+                                            <th scope="row"> <a
+                                                    href="/shop/product_details/{{order_item.product_id.id}}/"><img
+                                                        src="{{order_item.product_id.image.url}}" style="width: 80px;"
+                                                        alt=""></a></th>
+                                            <td data-info="title"><a
+                                                    href="/shop/product_details/{{order_item.product_id.id}}/">{{ order_item.product_id.product_name }}</a>
+                                            </td>
+                                            <td data-info="status pending">{{ order.order_id }}
+                                            </td>
+                                            <th>₹{{ order_item.price }}</th>
+                                            <td data-info="title">{{ order_item.quantity }}</td>
+                                            <td data-info="status pending">{{ order.order_status }}
+                                            </td>
+                                            <!-- <td><a href="#" class="tp-logout-btn">Invoice</a></td> -->
+                                        </tr>
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center">
+                                <h3 class="profile__address-title pt-30">No Orders</h3>
+                                <a href="/shop/view/" class="tp-btn">Continue Shopping</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- profile area end -->
+
+</main>
+
+{% endblock %}

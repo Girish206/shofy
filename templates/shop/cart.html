@@ -1,0 +1,200 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<script>
+    function calculate1(id, pr) {
+        let quan = parseInt($('#input1' + id).val());
+        console.log(quan);
+        let price = parseFloat(pr);
+        //alert(price * quan);
+        if (quan >= 1) {
+            $.ajax({
+                url: '/shop/cart/update/' + id + '/' + quan,
+                type: 'GET',
+                success: function (res) {
+                    console.log(res);
+                    $('#total1').html('₹' + res);
+                    $('#subtotal').html('₹' + res);
+                    $('#total1' + id).html('₹' + (price * quan));
+                }
+            });
+        } else {
+            $('#input1' + id).val(1);
+            $('#total1' + id).html('₹' + (price * 1));
+        }
+    }
+
+</script>
+
+<main>
+
+    <!-- breadcrumb area start -->
+    <section class="breadcrumb__area include-bg pt-95 pb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="breadcrumb__content p-relative z-index-1">
+                        <h3 class="breadcrumb__title">Shopping Cart</h3>
+                        <div class="breadcrumb__list">
+                            <span><a href="#">Home</a></span>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb area end -->
+
+    <!-- cart area start -->
+    <section class="tp-cart-area pb-120">
+        <div class="container">
+            {% if request.session.cart_ids|length > 0 %}
+            <div class="row">
+                <div class="col-xl-9 col-lg-8">
+                    <div class="tp-cart-list mb-25 mr-30">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="tp-cart-header-product">Product</th>
+                                    <th class="tp-cart-header-price">Price</th>
+                                    <th class="tp-cart-header-quantity">Quantity</th>
+                                    <th class="tp-cart-header-price">Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_products %}
+                                <tr>
+                                    <!-- img -->
+                                    <td class="tp-cart-img"><a href="/shop/product_details/{{item.product_id.id}}/">
+                                            <img src="{{item.product_id.image.url}}" alt=""></a></td>
+                                    <!-- title -->
+                                    <td class="tp-cart-title"><a
+                                            href="/shop/product_details/{{item.product_id.id}}/">{{item.product_id.product_name}}</a>
+                                    </td>
+                                    <!-- price -->
+                                    <td class="tp-cart-price"><span>₹ {{item.product_id.discount_price}}</span></td>
+                                    <!-- quantity -->
+                                    <td class="tp-cart-quantity">
+                                        <div class="tp-product-quantity mt-10 mb-10">
+                                            <span class="tp-cart-minus"
+                                                onclick="calculate1('{{item.id}}','{{item.product_id.discount_price}}')">
+                                                <svg width="10" height="2" viewBox="0 0 10 2" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M1 1H9" stroke="currentColor" stroke-width="1.5"
+                                                        stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </span>
+                                            <input class="tp-cart-input" id="input1{{item.id}}" type="text"
+                                                value="{{item.quantity}}"
+                                                onchange="calculate1('{{item.id}}','{{item.product_id.discount_price}}')">
+                                            <span class="tp-cart-plus"
+                                                onclick="calculate1('{{item.id}}','{{item.product_id.discount_price}}')">
+                                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5 1V9" stroke="currentColor" stroke-width="1.5"
+                                                        stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M1 5H9" stroke="currentColor" stroke-width="1.5"
+                                                        stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="tp-cart-price"><span id="total1{{item.id}}">
+                                            ₹ {{item.calculate_subtotal}}</span></td>
+                                    <!-- action -->
+                                    <td class="tp-cart-action">
+                                        <a href="/shop/cart/remove/{{item.product_id.id}}/" class="tp-cart-action-btn">
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                    d="M9.53033 1.53033C9.82322 1.23744 9.82322 0.762563 9.53033 0.46967C9.23744 0.176777 8.76256 0.176777 8.46967 0.46967L5 3.93934L1.53033 0.46967C1.23744 0.176777 0.762563 0.176777 0.46967 0.46967C0.176777 0.762563 0.176777 1.23744 0.46967 1.53033L3.93934 5L0.46967 8.46967C0.176777 8.76256 0.176777 9.23744 0.46967 9.53033C0.762563 9.82322 1.23744 9.82322 1.53033 9.53033L5 6.06066L8.46967 9.53033C8.76256 9.82322 9.23744 9.82322 9.53033 9.53033C9.82322 9.23744 9.82322 8.76256 9.53033 8.46967L6.06066 5L9.53033 1.53033Z"
+                                                    fill="currentColor" />
+                                            </svg>
+                                            <span>Remove</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tp-cart-bottom">
+                        <div class="row align-items-end">
+                            <!-- <div class="col-xl-6 col-md-8">
+                                <div class="tp-cart-coupon">
+                                    <form action="#">
+                                        <div class="tp-cart-coupon-input-box">
+                                            <label>Coupon Code:</label>
+                                            <div class="tp-cart-coupon-input d-flex align-items-center">
+                                                <input type="text" placeholder="Enter Coupon Code">
+                                                <button type="submit">Apply</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div> -->
+                            <div class="col-xl-6 col-md-4">
+                                <div class="tp-cart-update">
+                                    <button type="button" class="tp-cart-update-btn">Continue Shopping</button>
+                                </div>
+                            </div>
+                            <!-- <div class="col-xl-6 col-md-4">
+                                <div class="tp-cart-update text-md-end">
+                                    <button type="button" class="tp-cart-update-btn">Update Cart</button>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="tp-cart-checkout-wrapper">
+                        <div class="tp-cart-checkout-top d-flex align-items-center justify-content-between">
+                            <span class="tp-cart-checkout-top-title">Subtotal</span>
+                            <span class="tp-cart-checkout-top-price" id="subtotal">₹
+                                {{request.session.cart_total_price}}</span>
+                        </div>
+                        <div class="tp-cart-checkout-shipping">
+                            <h4 class="tp-cart-checkout-shipping-title">Shipping</h4>
+                            <label for="free_shipping">Free shipping</label>
+
+                            <!-- <div class="tp-cart-checkout-shipping-option-wrapper">
+                                <div class="tp-cart-checkout-shipping-option">
+                                    <input id="flat_rate" type="radio" name="shipping">
+                                    <label for="flat_rate">Flat rate: <span>$20.00</span></label>
+                                </div>
+                                <div class="tp-cart-checkout-shipping-option">
+                                    <input id="local_pickup" type="radio" name="shipping">
+                                    <label for="local_pickup">Local pickup: <span> $25.00</span></label>
+                                </div>
+                                <div class="tp-cart-checkout-shipping-option">
+                                    <input id="free_shipping" type="radio" name="shipping">
+                                    <label for="free_shipping">Free shipping</label>
+                                </div>
+                            </div> -->
+                        </div>
+                        <div class="tp-cart-checkout-total d-flex align-items-center justify-content-between">
+                            <span>Total</span>
+                            <span id="total1">₹ {{request.session.cart_total_price}}</span>
+                        </div>
+                        <div class="tp-cart-checkout-proceed">
+                            <a href="/shop/checkout/" class="tp-cart-checkout-btn w-100">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center" style="margin-top: 40px;">
+                <img src="{% static 'assets/img/product/cartmini/empty-cart.png' %}" style="max-width: 150px;" alt="">
+                <p>Your Cart is empty</p>
+                <a href="/shop/view/" class="tp-btn">Go to Store</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    <!-- cart area end -->
+
+</main>
+{% endblock %}

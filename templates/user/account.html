@@ -1,0 +1,97 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+    <!-- profile area start -->
+    <section class="profile__area pt-120 pb-120">
+        <div class="container">
+            <div class="profile__inner p-relative">
+                <div class="row">
+                    {% include 'layouts/my_account_sidebar.html' %}
+                    <div class="col-xxl-8 col-lg-8">
+                        <div class="profile__tab-content">
+                            <div class="profile__main">
+                                <div class="profile__main-top pb-80">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <div class="profile__main-inner d-flex flex-wrap align-items-center">
+                                                <div class="profile__main-thumb">
+                                                    {% if request.session.user_image %}
+                                                    <img src="{{request.session.user_image}}" alt="">
+                                                    {% else %}
+                                                    <img src="{% static 'assets/img/default-profile.png' %}" alt="">
+                                                    {% endif %}
+                                                </div>
+                                                <div class="profile__main-content">
+                                                    <h4 class="profile__main-title">Welcome
+                                                        {{ request.session.name }}!
+                                                    </h4>
+                                                    <!-- <p>You have <span>08</span> notifications</p> -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="profile__main-logout text-sm-end">
+                                                <a href="/logout/" class="tp-logout-btn">Logout</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="profile__main-info">
+                                    <div class="row gx-3">
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="profile__main-info-item">
+                                                <div class="profile__main-info-icon">
+                                                    <span>
+                                                        <span
+                                                            class="profile-icon-count profile-download">{{orders_count}}</span>
+                                                        <i class="fa-solid fa-truck-fast fa-2xl"
+                                                            style="color: #bb09ec;font-size:50px"></i>
+
+                                                    </span>
+                                                </div>
+                                                <h4 class="profile__main-info-title">Orders</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="profile__main-info-item">
+                                                <div class="profile__main-info-icon">
+                                                    <span>
+                                                        <span
+                                                            class="profile-icon-count profile-order">{{cart_count}}</span>
+                                                        <i class="fa-solid fa-basket-shopping"
+                                                            style="color: #e16b09;font-size:50px"></i>
+                                                    </span>
+                                                </div>
+                                                <h4 class="profile__main-info-title">Cart</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="profile__main-info-item">
+                                                <div class="profile__main-info-icon">
+                                                    <span>
+                                                        <span
+                                                            class="profile-icon-count profile-wishlist">{{wishlist_count}}</span>
+                                                        <i class="fa-solid fa-heart"
+                                                            style="color: #ce1212;font-size:50px"></i>
+                                                    </span>
+                                                </div>
+                                                <h4 class="profile__main-info-title">Wishlist</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- profile area end -->
+
+</main>
+
+{% endblock %}

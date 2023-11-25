@@ -1,0 +1,269 @@
+{% extends 'layouts/base.html '%}
+{% load static %}
+{% block content %}
+<script>
+    $(document).ready(function () {
+        $('#edit_address_div').hide('fast');
+        $('#error_div').hide('fast');
+        $('#new_address').click(function () {
+            $('#new_address_div').toggle();
+        });
+        $("input[name='address']").change(function () {
+            var selectedValue = $("input[name='address']:checked").val();
+            $("#ship_id").val(selectedValue)
+        });
+        $('#place_order').click(function () {
+            var address_status = $('input[name="address"]:checked').length > 0;
+            if (!address_status) {
+                $('#error_div').show('fast');
+            } else {
+                $('#placeorderForm').submit();
+            }
+        });
+    });
+</script>
+<main>
+
+
+
+    <!-- checkout area start -->
+    <section class="tp-checkout-area pb-120 pt-100" data-bg-color="#EFF1F5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="profile__tab-content">
+                        <div class="profile__address">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <h3 class="profile__address-title">Shipping Address</h3>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#add_new_addr_modal"><i
+                                            class="fa-solid fa-plus"></i> New Address</a>
+                                </div>
+                            </div>
+                            <div class="row pt-30">
+                                {% for addr in addresses %}
+                                <div class="col-md-6">
+                                    <div class="profile__tab-content">
+                                        <div class="profile__address">
+                                            <div class="profile__address-item d-sm-flex align-items-start">
+                                                <div class="profile__address-content">
+
+                                                    <div class="row">
+                                                        <div class="col-md-9">
+                                                            {% if not addr.default_address %}
+                                                            <input type="radio" name="address" value="{{addr.id}}">
+                                                            {% else %}
+                                                            <input type="radio" name="address" value="{{addr.id}}"
+                                                                checked>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col-md-3 text-end">
+                                                            <a data-bs-toggle="modal"
+                                                                data-bs-target="#edit_addr_modal{{addr.id}}">
+                                                                <i class="fa-solid fa-square-pen"
+                                                                    style="color: #0b7512;font-size: medium;"></i>
+                                                            </a>
+                                                        </div>
+                                                        <hr class="mt-2">
+                                                        <div class="col-md-12">
+                                                            <label><b>{{addr.name}}</b></label>
+                                                            <label><b>{{addr.mobile_number}}</b></label>
+                                                            <label>{{addr.house_no}},
+                                                                {{addr.landmark}}, {{addr.area}},
+                                                                {{addr.city}}, {{addr.state}},
+                                                                {{addr.pincode}}</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--edit modal-->
+                                <div class="modal fade modal-lg" id="edit_addr_modal{{addr.id}}" tabindex="-1"
+                                    aria-labelledby="edit_addr_modal{{addr.id}}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="tp-product-modal-content d-lg-flex align-items-start">
+                                                <button type="button" class="tp-product-modal-close-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#edit_addr_modal{{addr.id}}"><i
+                                                        class="fal fa-times"></i></button>
+                                                <div class="profile__info">
+                                                    <h3 class="profile__info-title">Update Shipping Address</h3>
+                                                    <div class="profile__info-content">
+                                                        <form class="contact__form--inner" method="post"
+                                                            action="/account/shipping_address/edit/{{addr.id}}/"
+                                                            enctype="multipart/form-data">
+                                                            {% csrf_token %}
+                                                            <div class="row">
+
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5" for="name">Full
+                                                                            Name</label>
+                                                                        <input type="text"
+                                                                            placeholder="Enter your Full Name"
+                                                                            name="name" id="name" value="{{addr.name}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label for="mobile">Mobile Number</label>
+                                                                        <input class="pl-5" name="mobile" id="mobile"
+                                                                            placeholder="Phone number" type="text"
+                                                                            value="{{addr.mobile_number}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5" for="house_no">House
+                                                                            No.</label>
+                                                                        <input name="house_no" id="house_no"
+                                                                            placeholder="House No." type="text"
+                                                                            value="{{addr.house_no}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5" for="area">Area</label>
+                                                                        <input name="area" id="area"
+                                                                            placeholder="Area Name" type="text"
+                                                                            value="{{addr.area}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5"
+                                                                            for="landmark">Landmark</label>
+                                                                        <input name="landmark" id="landmark"
+                                                                            placeholder="Landmark" type="text"
+                                                                            value="{{addr.landmark}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5"
+                                                                            for="pincode">Pincode</label>
+                                                                        <input name="pincode" id="pincode"
+                                                                            placeholder="Pincode" type="text"
+                                                                            value="{{addr.pincode}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5" for="city">City</label>
+                                                                        <input name="city" id="city" placeholder="City"
+                                                                            type="text" value="{{addr.city}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-6 col-md-6 pt-30">
+                                                                    <div class="profile__input-box">
+                                                                        <label class="pl-5" for="state">State</label>
+                                                                        <input name="state" id="state"
+                                                                            placeholder="State" type="text"
+                                                                            value="{{addr.state}}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xxl-12 pt-30">
+                                                                    <div class="profile__btn text-end">
+                                                                        <button type="submit"
+                                                                            class="tp-btn">Update</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% empty %}
+                                <h3 class="profile__address-title">No Shipping Address</h3>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <!-- checkout place order -->
+                    <div class="tp-checkout-place white-bg">
+                        <h3 class="tp-checkout-place-title">Your Order</h3>
+
+                        <div class="tp-order-info-list">
+                            <ul>
+
+                                <!-- header -->
+                                <li class="tp-order-info-list-header">
+                                    <h4>Product</h4>
+                                    <h4>Total</h4>
+                                </li>
+                                {% for item in cart_products %}
+                                <!-- item list -->
+                                <li class="tp-order-info-list-desc">
+                                    <p>{{item.product_id.product_name}} <span> x {{item.quantity}}</span></p>
+                                    <span>₹{{item.calculate_subtotal}}</span>
+                                </li>
+                                {% endfor %}
+
+                                <!-- subtotal -->
+                                <li class="tp-order-info-list-subtotal">
+                                    <span>Subtotal</span>
+                                    <span>₹{{request.session.cart_total_price}}</span>
+                                </li>
+
+                                <!-- shipping -->
+                                <li class="tp-order-info-list-shipping">
+                                    <span>Shipping</span>
+                                    <label for="free_shipping">Free shipping</label>
+
+                                    <!-- <div class="tp-order-info-list-shipping-item d-flex flex-column align-items-end">
+                                        <span>
+                                            <input id="flat_rate" type="radio" name="shipping">
+                                            <label for="flat_rate">Flat rate: <span>$20.00</span></label>
+                                        </span>
+                                        <span>
+                                            <input id="local_pickup" type="radio" name="shipping">
+                                            <label for="local_pickup">Local pickup: <span>$25.00</span></label>
+                                        </span>
+                                        <span>
+                                            <input id="free_shipping" type="radio" name="shipping">
+                                            <label for="free_shipping">Free shipping</label>
+                                        </span>
+                                    </div> -->
+                                </li>
+
+                                <!-- total -->
+                                <li class="tp-order-info-list-total">
+                                    <span>Total</span>
+                                    <span>₹{{request.session.cart_total_price}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--  -->
+                        <div class="tp-checkout-btn-wrapper">
+                            <form action="/shop/checkout/placeorder/" id="placeorderForm" method="post">
+                                {% csrf_token %}
+                                <input type="text" id="ship_id" name="ship_id" value="{{default_address_id}}" hidden>
+                                <input type="text" id="total_price" name="total_price"
+                                    value="{{request.session.cart_total_price}}" hidden>
+                                <button class="tp-checkout-btn w-100" type="button" id="place_order">Place
+                                    Your
+                                    Order</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- checkout area end -->
+
+
+</main>
+{% endblock %}

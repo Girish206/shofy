@@ -1,0 +1,294 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Shofy</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico in the root directory -->
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/logo/favicon.png' %}">
+
+        <!-- CSS here -->
+        <link rel="stylesheet" href="{% static 'assets/css/bootstrap.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/swiper-bundle.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/slick.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/font-awesome-pro.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/flaticon_shofy.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/spacing.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://kit.fontawesome.com/5c0bb98e5a.js" crossorigin="anonymous"></script>
+        <script>
+            function product_view(id) {
+                $.ajax({
+                    url: '/shop/product/view/' + id,
+                    type: 'get',
+                    success: function (product) {
+                        console.log(product);
+                        $('#prod_image').attr('src', "/media/" + product.image);
+                        $('#prod_name').html(product.product_name);
+                        if (product.price != 0) {
+                            $('#prod_new_price').html('&#8377;' + product.price);
+                            $('#prod_old_price').html('&#8377;' + product.price);
+                            $('#prod_disc').html("-" + product.discount + "% off");
+                        } else {
+                            $('#prod_new_price').html('&#8377;' + product.price);
+                        }
+                        $('#prod_description').html(product.description);
+                        $('#product_view_modal').modal('show');
+                    }
+                });
+            }
+            function order_view(id) {
+
+                $.ajax({
+                    url: '/shop/order/view/' + id + '/',
+                    type: 'get',
+                    success: function (order) {
+                        console.log(order);
+                        $('#p_image').attr('src', order.product_image);
+                        $('#p_name').html(order.product_name);
+                        $('#p_price').html(order.price);
+                        $('#o_id').html(order.order_id);
+                        $('#o_date').html(order.order_date);
+                        $('#p_quantity').html(order.quantity);
+                        $('#order_view_modal').modal('show');
+                    }
+                });
+            }
+            function get_shipping_address(ship_id) {
+                $('#edit_address_div').hide('fast');
+                $.ajax({
+                    url: '/account/shipping_address/get/' + ship_id,
+                    type: 'get',
+                    success: function (res) {
+                        console.log(res);
+                        $('#name1').val(res.name);
+                        $('#mobile1').val(res.mobile_number);
+                        $('#area1').val(res.area);
+                        $('#pincode1').val(res.pincode);
+                        $('#house_no1').val(res.house_no);
+                        $('#landmark1').val(res.landmark);
+                        $('#city1').val(res.city);
+                        $('#state1').val(res.state);
+                        if (res.default_address) {
+                            $('#default1').attr('checked', true);
+                        } else {
+                            $('#default1').attr('checked', false);
+                        }
+                        $('#edit_form').attr('action', '/account/shipping_address/edit/' + res.id + '/');
+                        $('#edit_address_div').show('fast');
+                    }
+                })
+            }
+
+            function calculate(id, pr) {
+                let quan = parseInt($('#input' + id).val());
+                console.log(quan);
+                let price = parseFloat(pr);
+                //alert(price * quan);
+                if (quan >= 1) {
+                    $.ajax({
+                        url: '/shop/cart/update/' + id + '/' + quan,
+                        type: 'GET',
+                        success: function (res) {
+                            console.log(res);
+                            $('#total').html(res);
+                            $('#total' + id).html(res);
+                        }
+                    });
+                } else {
+                    $('#input' + id).val(1);
+                    $('#total' + id).html(price * 1);
+                }
+            }
+        </script>
+        <style>
+            .content-container {
+                max-width: 200px;
+                /* Adjust this value as needed */
+                /*overflow: auto;*/
+                /* Add a scrollbar when content overflows */
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+        </style>
+
+    </head>
+
+        </script>
+    <body>
+        <!--[if lte IE 9]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+      <![endif]-->
+
+
+        <!-- pre loader area start -->
+        <div id="loading">
+            <div id="loading-center">
+                <div id="loading-center-absolute">
+                    <!-- loading content here -->
+                    <div class="tp-preloader-content">
+                        <div class="tp-preloader-logo">
+                            <div class="tp-preloader-circle">
+                                <svg width="190" height="190" viewBox="0 0 380 380" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle stroke="#D9D9D9" cx="190" cy="190" r="180" stroke-width="6"
+                                        stroke-linecap="round"></circle>
+                                    <circle stroke="red" cx="190" cy="190" r="180" stroke-width="6"
+                                        stroke-linecap="round"></circle>
+                                </svg>
+                            </div>
+                            <img src="{% static 'assets/img/logo/preloader/preloader-icon.svg' %}" alt="">
+                        </div>
+                        <h3 class="tp-preloader-title">Shofy</h3>
+                        <p class="tp-preloader-subtitle">Loading</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- pre loader area end -->
+
+        <!-- back to top start -->
+        <div class="back-to-top-wrapper">
+            <button id="back_to_top" type="button" class="back-to-top-btn">
+                <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 6L6 1L1 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+        <!-- back to top end -->
+
+        <!--navbar are-->
+        {% include 'layouts/navbar.html' %}
+        <!--navbar are-->
+
+        {% block content %}
+        {% endblock %}
+
+
+
+        <!-- footer area start -->
+        {% include 'layouts/footer.html' %}
+        <!-- footer area end -->
+
+        <!-- add new address modal -->
+        <div class="modal fade modal-lg" id="add_new_addr_modal" tabindex="-1" aria-labelledby="add_new_addr_modal"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="tp-product-modal-content d-lg-flex align-items-start">
+                        <button type="button" class="tp-product-modal-close-btn" data-bs-toggle="modal"
+                            data-bs-target="#add_new_addr_modal"><i class="fal fa-times"></i></button>
+                        <div class="profile__info">
+                            <h3 class="profile__info-title">Add New Address</h3>
+                            <div class="profile__info-content">
+                                <form class="contact__form--inner" method="post" action="/account/shipping_address/new/"
+                                    enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="name">Full
+                                                    Name</label>
+                                                <input type="text" placeholder="Enter your Full Name" name="name"
+                                                    id="name">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label for="mobile">Mobile Number</label>
+                                                <input name="mobile" id="mobile" placeholder="Phone number" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="house_no">House
+                                                    No.</label>
+                                                <input name="house_no" id="house_no" placeholder="House No."
+                                                    type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="area">Area</label>
+                                                <input name="area" id="area" placeholder="Area Name" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="landmark">Landmark</label>
+                                                <input name="landmark" id="landmark" placeholder="Landmark" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="pincode">Pincode</label>
+                                                <input name="pincode" id="pincode" placeholder="Pincode" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="city">City</label>
+                                                <input name="city" id="city" placeholder="City" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="profile__input-box">
+                                                <label class="pl-5" for="state">State</label>
+                                                <input name="state" id="state" placeholder="State" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-6 col-md-6 pt-30">
+                                            <div class="tp-checkout-agree">
+                                                <div class="tp-checkout-option">
+                                                    <input id="read_all" type="checkbox" name="default" id="default">
+                                                    <label for="read_all">Use This Address As Default Address</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xxl-12">
+                                            <div class="profile__btn">
+                                                <button type="submit" class="tp-btn">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JS here -->
+        <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js' %}"></script>
+        <script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
+        <script src="{% static 'assets/js/vendor/waypoints.js' %}"></script>
+        <script src="{% static 'assets/js/bootstrap-bundle.js' %}"></script>
+        <script src="{% static 'assets/js/meanmenu.js' %}"></script>
+        <script src="{% static 'assets/js/swiper-bundle.js' %}"></script>
+        <script src="{% static 'assets/js/slick.js' %}"></script>
+        <script src="{% static 'assets/js/range-slider.js' %}"></script>
+        <script src="{% static 'assets/js/magnific-popup.js' %}"></script>
+        <script src="{% static 'assets/js/nice-select.js' %}"></script>
+        <script src="{% static 'assets/js/purecounter.js' %}"></script>
+        <script src="{% static 'assets/js/countdown.js' %}"></script>
+        <script src="{% static 'assets/js/wow.js' %}"></script>
+        <script src="{% static 'assets/js/isotope-pkgd.js' %}"></script>
+        <script src="{% static 'assets/js/imagesloaded-pkgd.js' %}"></script>
+        <script src="{% static 'assets/js/ajax-form.js' %}"></script>
+        <script src="{% static 'assets/js/main.js' %}"></script>
+    </body>
+
+</html>

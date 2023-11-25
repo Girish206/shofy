@@ -1,0 +1,197 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<main>
+
+    <!-- profile area start -->
+    <section class="profile__area pt-120 pb-120">
+        <div class="container">
+            <div class="profile__inner p-relative">
+                <div class="row">
+                    {% include 'layouts/my_account_sidebar.html' %}
+                    <div class="col-xxl-8 col-lg-8">
+                        <div class="profile__tab-content">
+                            <div class="profile__address">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <h3 class="profile__address-title">Shipping Address</h3>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#add_new_addr_modal"><i
+                                                class="fa-solid fa-plus"></i> New Address</a>
+                                    </div>
+                                </div>
+                                <div class="row pt-30">
+                                    {% for addr in addresses %}
+                                    <div class="col-md-6">
+                                        <div class="profile__tab-content">
+                                            <div class="profile__address">
+                                                <div class="profile__address-item d-sm-flex align-items-start">
+                                                    <div class="profile__address-content">
+
+                                                        <div class="row">
+                                                            <div class="col-md-9">
+                                                                {% if not addr.default_address %}
+                                                                <a
+                                                                    href="/account/shipping_address/set_default/{{addr.id}}/">
+                                                                    <i class="fa-solid fa-square-check"
+                                                                        style="color: #0b53d0;font-size: medium;"></i>
+                                                                    Set As
+                                                                    Default
+                                                                </a>
+                                                                {% else %}
+                                                                <i class="fa-solid fa-location-crosshairs"
+                                                                    style="color: #a711bb;font-size: medium;"></i>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="col-md-3 text-end">
+                                                                <a data-bs-toggle="modal"
+                                                                    data-bs-target="#edit_addr_modal{{addr.id}}">
+                                                                    <i class="fa-solid fa-square-pen"
+                                                                        style="color: #0b7512;font-size: medium;"></i>
+                                                                </a>
+                                                                <a href="/account/shipping_address/remove/{{addr.id}}/">
+                                                                    <i class="fa-solid fa-trash-can"
+                                                                        style="color: #e10909;font-size: medium;"></i>
+                                                                </a>
+                                                            </div>
+                                                            <hr class="mt-2">
+                                                            <div class="col-md-12">
+                                                                <label><b>{{addr.name}}</b></label>
+                                                                <label><b>{{addr.mobile_number}}</b></label>
+                                                                <label>{{addr.house_no}},
+                                                                    {{addr.landmark}}, {{addr.area}},
+                                                                    {{addr.city}}, {{addr.state}},
+                                                                    {{addr.pincode}}</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--edit modal-->
+                                    <div class="modal fade modal-lg" id="edit_addr_modal{{addr.id}}" tabindex="-1"
+                                        aria-labelledby="edit_addr_modal{{addr.id}}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="tp-product-modal-content d-lg-flex align-items-start">
+                                                    <button type="button" class="tp-product-modal-close-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#edit_addr_modal{{addr.id}}"><i
+                                                            class="fal fa-times"></i></button>
+                                                    <div class="profile__info">
+                                                        <h3 class="profile__info-title">Update Shipping Address</h3>
+                                                        <div class="profile__info-content">
+                                                            <form class="contact__form--inner" method="post"
+                                                                action="/account/shipping_address/edit/{{addr.id}}/"
+                                                                enctype="multipart/form-data">
+                                                                {% csrf_token %}
+                                                                <div class="row">
+
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5" for="name">Full
+                                                                                Name</label>
+                                                                            <input type="text"
+                                                                                placeholder="Enter your Full Name"
+                                                                                name="name" id="name"
+                                                                                value="{{addr.name}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label for="mobile">Mobile Number</label>
+                                                                            <input class="pl-5" name="mobile"
+                                                                                id="mobile" placeholder="Phone number"
+                                                                                type="text"
+                                                                                value="{{addr.mobile_number}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5" for="house_no">House
+                                                                                No.</label>
+                                                                            <input name="house_no" id="house_no"
+                                                                                placeholder="House No." type="text"
+                                                                                value="{{addr.house_no}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5" for="area">Area</label>
+                                                                            <input name="area" id="area"
+                                                                                placeholder="Area Name" type="text"
+                                                                                value="{{addr.area}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5"
+                                                                                for="landmark">Landmark</label>
+                                                                            <input name="landmark" id="landmark"
+                                                                                placeholder="Landmark" type="text"
+                                                                                value="{{addr.landmark}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5"
+                                                                                for="pincode">Pincode</label>
+                                                                            <input name="pincode" id="pincode"
+                                                                                placeholder="Pincode" type="text"
+                                                                                value="{{addr.pincode}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5" for="city">City</label>
+                                                                            <input name="city" id="city"
+                                                                                placeholder="City" type="text"
+                                                                                value="{{addr.city}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-6 col-md-6 pt-30">
+                                                                        <div class="profile__input-box">
+                                                                            <label class="pl-5"
+                                                                                for="state">State</label>
+                                                                            <input name="state" id="state"
+                                                                                placeholder="State" type="text"
+                                                                                value="{{addr.state}}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xxl-12 pt-30">
+                                                                        <div class="profile__btn text-end">
+                                                                            <button type="submit"
+                                                                                class="tp-btn">Update</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% empty %}
+                                    <h3 class="profile__address-title">No Shipping Address</h3>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- profile area end -->
+
+
+</main>
+
+{% endblock %}
